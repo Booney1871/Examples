@@ -1,0 +1,114 @@
+// 
+ /**
+* Title:		Lab 5
+* C File        Lab5.c  	
+* Platform:     PICmicro PIC16F877A @ 4 Mhz	
+* Written by:	Seán Rooney		
+*
+* Date:			27/10/2022
+*
+* Function:		to print testing I2C to the putty screen
+*
+*/
+
+
+// CONFIG
+#pragma config FOSC = XT        // Oscillator Selection bits (XT oscillator)
+#pragma config WDTE = OFF       // Watchdog Timer Enable bit (WDT disabled)
+#pragma config PWRTE = OFF      // Power-up Timer Enable bit (PWRT disabled)
+#pragma config BOREN = OFF      // Brown-out Reset Enable bit (BOR disabled)
+#pragma config LVP = OFF        // Low-Voltage (Single-Supply) In-Circuit Serial Programming Enable bit (RB3 is digital I/O, HV on MCLR must be used for programming)
+#pragma config CPD = OFF        // Data EEPROM Memory Code Protection bit (Data EEPROM code protection off)
+#pragma config WRT = OFF        // Flash Program Memory Write Enable bits (Write protection off; all program memory may be written to by EECON control)
+#pragma config CP = OFF         // Flash Program Memory Code Protection bit (Code protection off)
+
+// #pragma config statements should precede project file includes.
+// Use project enums instead of #define for ON and OFF.
+
+#include <xc.h>
+#include <stdio.h> // Include Standard I/O header file
+#include "I2C_EE302.h"
+
+#ifndef _XTAL_FREQ
+ // Unless already defined assume 4MHz system frequency
+ // This definition is required to calibrate the delay functions, __delay_us() and __delay_ms()
+ #define _XTAL_FREQ 4000000
+#endif 
+
+
+// Definitions____________________________________________________________
+#define SW1 RB0			// Assign Label SW1 to PortB bit 0 (RB0)
+#define LED1 RD0
+#define LED2 RD1
+#define LED3 RD2
+#define LED4 RD3
+#define CLOSED 0
+#define OPEN 1
+#define ON 1
+#define OFF 0
+
+void setup();
+void loop();
+void write_eeprom();
+void read_eeprom();
+void transmitString();
+unsigned char gString[11];
+
+void main() {
+    setup();
+    while (1) {
+        loop();
+    }
+}
+void setup(void){
+    i2c_init();
+    TRISC=0xC0;
+    TRISD=0x00;
+    TXSTA=0x24;
+    RCSTA=0x90;
+    SPBRG=0x19;
+}
+
+void loop(void){
+    write_eeprom("Testing I2C");
+    read_eeprom();
+    transmitString();
+}
+void write_eeprom(char* str[]){
+    i2c_start();
+    i2c_write(0xA0);
+    i2c_write(0x01);
+    i2c_write(0x55);
+    int i=0;
+    while(str[i]!='\0'){
+        i2c_write(str[i]);
+        i++;
+    }
+    i2c_stop();
+    __delay_ms(5);
+}
+void read_eeprom(void){
+    i2c_start();
+    i2c_write(0xA0);
+    i2c_write(0x01);
+    i2c_write(0x55);
+    
+     i2c_repStart();
+    i2c_write(0xA1);
+    int i=0;
+     while(i<20){
+        gString[i]= i2c_read(1);
+        i++;
+    }
+    i2c_read(0);
+    i2c_stop();
+}
+void transmitString(void){
+    int i=0;
+    while(gString[i]!='\0'){
+        while(!TXIF);
+        __delay_ms(100);
+        TXREG=gString[i];
+        i++;
+    }
+}

@@ -1,0 +1,127 @@
+Part1:
+#include <ee108.h>
+struct Point2d {
+  int x;
+  int y;
+};
+
+typedef struct Point2d Point2d;
+
+
+const int SUPERLOOP_DELAY_MS = 50;
+
+
+void calcSlope(Point2d *pP1,Point2d *pP2,float* pSlope);
+void printPoint(Point2d *pP);
+
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("\n\nLab8_StructLineSlope Starter starting...\n");
+  Serial.println("\nClick SW1 to start\n");    
+}
+
+void loop() {
+  int sw1Event;
+  float slope;
+  Point2d point1={1500,500};
+  Point2d point2={0,0};
+  sw1Event = readSwitchEvent(sw1Object);
+  Point2d *pPoint1=&point1;
+  Point2d *pPoint2=&point2;
+  float *pSlope=&slope;
+
+  if (sw1Event == SW_CLICK) { // wait for click
+    Serial.print("[SW1 Click] ");
+    printPoint(pPoint1);
+    calcSlope(pPoint1,pPoint2,pSlope);
+    Serial.print(", slope= ");
+    Serial.print(slope);
+    Serial.println("");
+  } else if (sw1Event == SW_CLICK_LONG) {
+    Serial.print("[SW1 Long Click] ");
+    Serial.print("point2 ");
+    printPoint(pPoint2);
+    // TODO - code needed here
+    
+    Serial.println();
+  }
+ 
+  delay(SUPERLOOP_DELAY_MS);
+}
+void printPoint(Point2d *pP){
+  Serial.print("{ ");
+  Serial.print(pP->x);
+  Serial.print(", ");
+  Serial.print(pP->y);
+  Serial.print(" }");
+}
+void calcSlope(Point2d *pP1,Point2d *pP2,float* pSlope){
+  if(pP1!=0&&pP2!=0){
+  int tmp1=(pP2->y-pP1->y);
+  int tmp2=(pP2->x-pP1->x);
+  *pSlope = (float) tmp1 / tmp2;
+  }
+}
+Part 2:
+#include <ee108.h>
+
+//------------------------------------------------------------
+// constants
+//------------------------------------------------------------
+#define Length 10
+const int SUPERLOOP_DELAY_MS = 50;
+
+//------------------------------------------------------------
+// function declarations/prototypes
+//------------------------------------------------------------
+
+
+
+//------------------------------------------------------------
+// top level functions
+//------------------------------------------------------------
+
+void setup() {
+  // set up serial
+  Serial.begin(9600);
+  Serial.println("\n\nLab8_PasswordGenStarter starting...\n");
+  Serial.println("\nClick SW1 to start\n");    
+}
+
+void loop() {
+  int sw1Event;
+  int i;
+  static int len=10;
+  static char Arr[]={'P','A','S','S','W','O','R','D','\0'};
+  sw1Event = readSwitchEvent(sw1Object);
+
+  if (sw1Event == SW_CLICK) { // wait for click
+    Serial.print("[SW1 Click] ");
+    Serial.print("current password is: ");
+    for(i=0;i<len-1;i++){
+      Serial.print(Arr[i]);
+    }
+    Serial.println();
+  } else if (sw1Event == SW_CLICK_LONG) {
+    Serial.print("[SW1 Long Click] ");
+    len=random(4,10);
+    for(i=0;i<len-1;i++){
+        Arr[i]=random('A','Z');
+        if(i=len){
+          Arr[i]='\0';
+        }
+    }
+    Serial.print("new password (len=");
+    Serial.print(len);
+    Serial.print("): ");
+    for(i=0;i<len-1;i++){
+      Serial.print(Arr[i]);
+    }
+    // TODO - code needed here
+    
+    Serial.println();
+  }
+  
+  delay(SUPERLOOP_DELAY_MS);
+}

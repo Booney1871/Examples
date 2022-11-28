@@ -1,0 +1,208 @@
+Part 1:
+/**
+ * implement some basic array handling functions
+ */
+
+#include <ee108.h>
+
+//------------------------------------------------------------
+// constants
+//------------------------------------------------------------
+
+#define DATA_LEN  6
+
+const int SUPERLOOP_DELAY_MS = 50;
+
+//------------------------------------------------------------
+// function declarations/prototypes
+//------------------------------------------------------------
+
+void randomizeArray(int *pA, int len, int minVal, int maxVal);
+void printArray(const int *pA, int len);
+
+//------------------------------------------------------------
+// top level functions
+//------------------------------------------------------------
+
+void setup() {
+  // set up serial
+  Serial.begin(9600);
+  Serial.println("\n\nLab7_BasicArraySubscripting starting...\n");
+  Serial.println("\nClick SW1 to start\n");    
+}
+
+void loop() {
+  // note: we don't need to remember the element values in this
+  // array from one execution of the loop function to the next
+  int data[DATA_LEN] = { 0 }; // initialize array to all zeros
+  long result;
+  int index;
+  int *pArr=&data[0];
+
+
+  if (readSwitchEvent(sw1Object) == SW_CLICK) { // was there a click?
+    //array is randomised
+    randomizeArray(pArr, DATA_LEN, 0, 99);
+    //normal array gets printed
+    Serial.println("  Array has been filled with random values");
+    printArray(pArr, DATA_LEN);
+    //array slice gets printed
+    Serial.println("Array slice has been printed");
+    printArray(pArr+1,DATA_LEN-3);
+    Serial.println("\nClick SW1 to restart\n");
+  }
+  
+  
+  delay(SUPERLOOP_DELAY_MS);
+}
+
+//------------------------------------------------------------
+// helper functions
+//------------------------------------------------------------
+
+/**
+ * fill the array with random values
+ *
+ * @param array   the array to fill (an input/output parameter)
+ * @param len     the lenght of the array
+ * @param minVal  the minimum random value to fill with (inclusive)
+ * @param maxVal  the maximum random value to fill with (inclusive)
+ */
+void randomizeArray(int *pA, int len, int minVal, int maxVal) {
+  int *p;
+  
+  for ( p=pA; p < pA+len; p++)
+    *p = random(minVal, maxVal + 1);
+}
+
+/**
+ * pretty-print the contents of an array surrounded by braces
+ *
+ * @param array   the array to print (read only, so const)
+ * @param len     the length of the array
+ */
+void printArray(const int *pA, int len) {
+  int i;
+  
+  Serial.println("  printArray  ");
+  
+  if (len > 0)
+    Serial.print("{ ");
+    Serial.print(pA[0]);
+
+  for (i = 1; i < len; i++) {
+    Serial.print(", ");
+    Serial.print(pA[i]);
+  }
+  Serial.println(" }");
+}
+
+part 2:
+/**
+ * implement some basic array handling functions
+ */
+
+#include <ee108.h>
+
+//------------------------------------------------------------
+// constants
+//------------------------------------------------------------
+
+#define DATA_LEN  6
+#define LOCAL_LEN 10
+
+const int SUPERLOOP_DELAY_MS = 50;
+
+//------------------------------------------------------------
+// function declarations/prototypes
+//------------------------------------------------------------
+
+void randomizeArray(int *pA, int len, int minVal, int maxVal);
+void printArray(int *pA, int len);
+void upadateElement(int *pA);
+
+
+//------------------------------------------------------------
+// top level functions
+//------------------------------------------------------------
+
+void setup() {
+  // set up serial
+  Serial.begin(9600);
+  Serial.println("\n\nLab7_BasicArraySubscripting starting...\n");
+  Serial.println("\nClick SW1 to start\n");    
+}
+
+void loop() {
+ 
+  static int localArray[LOCAL_LEN]={100,110,120,130,140,150,160,170,180,190};
+  int *pLocal=localArray;
+  
+
+
+  if (readSwitchEvent(sw1Object) == SW_CLICK) { // was there a click?
+    int randomValue=random(0,LOCAL_LEN-2);
+    Serial.print("Initial data array contents: ");
+    printArray(localArray,LOCAL_LEN);
+    pLocal=&localArray[randomValue];
+    Serial.print("Chosen offset into array was ");
+    Serial.println(randomValue);
+    updateElement(pLocal);
+    Serial.print("Modified data array contents: ");
+    printArray(localArray,LOCAL_LEN);
+  }
+  
+  
+  delay(SUPERLOOP_DELAY_MS);
+}
+
+//------------------------------------------------------------
+// helper functions
+//------------------------------------------------------------
+
+/**
+ * fill the array with random values
+ *
+ * @param array   the array to fill (an input/output parameter)
+ * @param len     the lenght of the array
+ * @param minVal  the minimum random value to fill with (inclusive)
+ * @param maxVal  the maximum random value to fill with (inclusive)
+ */
+void randomizeArray(int *pA, int len, int minVal, int maxVal) {
+  int *p;
+  
+  for ( p=pA; p < pA+len; p++)
+    *p = random(minVal, maxVal + 1);
+}
+
+/**
+ * pretty-print the contents of an array surrounded by braces
+ *
+ * @param array   the array to print (read only, so const)
+ * @param len     the length of the array
+ */
+void printArray(int *pA, int len) {
+  int i;
+  
+  if (len > 0)
+    Serial.print("{ ");
+    Serial.print(pA[0]);
+
+  for (i = 1; i < len; i++) {
+    Serial.print(", ");
+    Serial.print(pA[i]);
+  }
+  Serial.println(" }");
+}
+void updateElement(int *pA){
+  int* p1=pA;
+  int* p2=pA+1;
+
+  if(*p1<*p2){
+    *p1=(*p2)+1;
+  }
+  else {
+    *p1=(*p1)+1;
+  }
+  *pA=*p1;
+}
